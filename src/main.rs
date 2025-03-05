@@ -1,5 +1,5 @@
 use image::{Rgb, RgbImage};
-use rocket::{get, launch, response::status::BadRequest, routes};
+use rocket::{get, http::ContentType, launch, response::status::BadRequest, routes};
 use std::io::Cursor;
 
 fn hex_to_rgb(hex: &str) -> Result<Rgb<u8>, BadRequest<String>> {
@@ -19,9 +19,25 @@ fn hex_to_rgb(hex: &str) -> Result<Rgb<u8>, BadRequest<String>> {
     Ok(Rgb([r, g, b]))
 }
 
-#[get("/<color>")]
-fn colorize(color: &str) -> Result<Vec<u8>, BadRequest<String>> {
-    let mut img = RgbImage::new(100, 100);
+#[get("/<size>/<color>")]
+fn colorize(size: &str, color: &str) -> Result<(ContentType, Vec<u8>), BadRequest<String>> {
+    let (height, weight) = match size.split_once('x') {
+        Some((height, weight)) => {
+            let height: u32 = height
+                .parse()
+                .map_err(|_| BadRequest("Could not parse height into u32".into()))?;
+            let weight: u32 = weight
+                .parse()
+                .map_err(|_| BadRequest("Could not parse height into u32".into()))?;
+            (height, weight)
+        }
+        None => {
+            return Err(BadRequest(
+                "Invalid size qualifier. Use `HEIGHTxWEIGHT` style".into(),
+            ))
+        }
+    };
+    let mut img = RgbImage::new(height, weight);
 
     let fill = hex_to_rgb(color)?;
 
@@ -34,10 +50,15 @@ fn colorize(color: &str) -> Result<Vec<u8>, BadRequest<String>> {
     img.write_to(&mut Cursor::new(&mut buffer), image::ImageFormat::Png)
         .expect("Failed to write PNG");
 
-    Ok(buffer)
+    Ok((ContentType::PNG, buffer))
+}
+
+#[get("/")]
+fn splash() -> &'static str {
+    "Use the slug: `/FFFFFF` for example."
 }
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![colorize])
+    rocket::build().mount("/", routes![colorize, splash])
 }
