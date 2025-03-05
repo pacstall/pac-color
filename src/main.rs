@@ -38,9 +38,7 @@ fn colorize<'a>(size: &str, color: &'a str) -> Result<(ContentType, Vec<u8>), Ba
 
     let fill = hex_to_rgb(color)?;
 
-    for pixel in img.pixels_mut() {
-        *pixel = fill;
-    }
+    img.pixels_mut().for_each(|pixel| *pixel = fill);
 
     let mut buffer = Vec::new();
 
