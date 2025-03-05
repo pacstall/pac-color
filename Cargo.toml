@@ -4,5 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-image = "0.25.5"
+image = { version = "0.25.5", default-features = false, features = ["gif", "ico", "jpeg", "png", "webp"] }
 rocket = "0.5.1"
+
+[profile.release]
+strip = true
+lto = true
