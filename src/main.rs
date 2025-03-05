@@ -50,7 +50,7 @@ fn jsonize(color: &str) -> Result<Json<Colors>, BadRequest<&'static str>> {
 
 #[get("/")]
 fn splash() -> &'static str {
-    "Use the slug: `/FFFFFF/preview` for example."
+    include_str!("../README.md")
 }
 
 #[launch]
