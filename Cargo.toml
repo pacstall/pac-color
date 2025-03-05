@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+color_processing = "0.6.3"
 image = { version = "0.25.5", default-features = false, features = ["gif", "ico", "jpeg", "png", "webp"] }
-rocket = "0.5.1"
+rocket = { version = "0.5.1", features = ["json"] }
 
 [profile.release]
 strip = true

@@ -153,6 +153,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "color_processing"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c40de83f0c666c50d60dd69a281e4190e5868bac1e32e7e7ce4818a95d3aa50"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "color_quant"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -756,6 +766,7 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 name = "pac-color"
 version = "0.1.0"
 dependencies = [
+ "color_processing",
  "image",
  "rocket",
 ]
@@ -1018,6 +1029,7 @@ dependencies = [
  "rocket_codegen",
  "rocket_http",
  "serde",
+ "serde_json",
  "state",
  "tempfile",
  "time",

@@ -1,4 +1,5 @@
-use image::{ImageFormat, Rgb};
+use color_processing::Color;
+use image::ImageFormat;
 use rocket::{http::ContentType, response::status::BadRequest, FromForm};
 
 fn validate_size(size: &&str) -> bool {
@@ -39,16 +40,16 @@ pub fn from_image_format(format: ImageFormat) -> Option<ContentType> {
     }
 }
 
-pub fn hex_to_rgb(hex: &str) -> Result<Rgb<u8>, BadRequest<&'static str>> {
-    let hex = hex.trim_start_matches('#');
-
-    if hex.len() != 6 {
-        return Err(BadRequest("Invalid color format. Use RRGGBB"));
+pub fn hex_to_color(hex: &str) -> Result<Color, BadRequest<&'static str>> {
+    match Color::new_string(hex) {
+        Ok(o) => Ok(o),
+        Err(e) => Err(BadRequest(match e.reason {
+            color_processing::ParseErrorEnum::EmptyString => "empty string",
+            color_processing::ParseErrorEnum::InvalidCssFunction => "invalid CSS function",
+            color_processing::ParseErrorEnum::Unknown => "unknown",
+            color_processing::ParseErrorEnum::InvalidHexValue => "invalid hex value",
+            color_processing::ParseErrorEnum::InvalidColorName => "invalid color name",
+            color_processing::ParseErrorEnum::InvalidAbbreviation => "invalid abbreviation",
+        })),
     }
-
-    let r = u8::from_str_radix(&hex[0..2], 16).map_err(|_| BadRequest("Invalid hex digits"))?;
-    let g = u8::from_str_radix(&hex[2..4], 16).map_err(|_| BadRequest("Invalid hex digits"))?;
-    let b = u8::from_str_radix(&hex[4..6], 16).map_err(|_| BadRequest("Invalid hex digits"))?;
-
-    Ok(Rgb([r, g, b]))
 }

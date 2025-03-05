@@ -1,8 +1,12 @@
-use image::{ImageFormat, RgbImage};
-use image_gen::{from_image_format, hex_to_rgb, ImageSpecifications};
-use rocket::{get, http::ContentType, launch, response::status::BadRequest, routes};
+use colors::Colors;
+use image::{ImageFormat, Rgb, RgbImage};
+use image_gen::{from_image_format, hex_to_color, ImageSpecifications};
+use rocket::{
+    get, http::ContentType, launch, response::status::BadRequest, routes, serde::json::Json,
+};
 use std::io::Cursor;
 
+mod colors;
 mod image_gen;
 
 #[get("/<color>/preview?<spec..>")]
@@ -23,7 +27,9 @@ fn colorize(
 
     let mut img = RgbImage::new(height, weight);
 
-    let fill = hex_to_rgb(color)?;
+    let color = hex_to_color(color)?;
+
+    let fill: Rgb<u8> = [color.red, color.green, color.blue].into();
 
     img.pixels_mut().for_each(|pixel| *pixel = fill);
 
@@ -35,6 +41,13 @@ fn colorize(
     Ok((content_type, buffer))
 }
 
+#[get("/<color>")]
+fn jsonize(color: &str) -> Result<Json<Colors>, BadRequest<&'static str>> {
+    let rgb = hex_to_color(color)?;
+
+    Ok(Colors::new(&rgb))
+}
+
 #[get("/")]
 fn splash() -> &'static str {
     "Use the slug: `/FFFFFF/preview` for example."
@@ -42,5 +55,5 @@ fn splash() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![colorize, splash])
+    rocket::build().mount("/", routes![colorize, jsonize, splash])
 }
