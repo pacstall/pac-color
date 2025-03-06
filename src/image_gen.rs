@@ -84,7 +84,7 @@ pub fn generate_img(
 
         let color = hex_to_color(color)?;
 
-        let fill: Rgb<u8> = [color.red, color.green, color.blue].into();
+        let fill = Rgb([color.red, color.green, color.blue]);
 
         img.par_pixels_mut().for_each(|pixel| *pixel = fill);
 
