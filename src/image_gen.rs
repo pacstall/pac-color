@@ -2,6 +2,7 @@ use std::io::Cursor;
 
 use color_processing::Color;
 use image::{ImageFormat, Rgb, RgbImage};
+use rayon::iter::ParallelIterator;
 use rocket::{http::ContentType, response::status::BadRequest, FromForm};
 use svg::{node::element::Rectangle, Document};
 
@@ -85,7 +86,7 @@ pub fn generate_img(
 
         let fill: Rgb<u8> = [color.red, color.green, color.blue].into();
 
-        img.pixels_mut().for_each(|pixel| *pixel = fill);
+        img.par_pixels_mut().for_each(|pixel| *pixel = fill);
 
         let mut buffer = Vec::new();
 
