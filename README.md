@@ -25,6 +25,7 @@ Finally, you can change the default generated filetype with the `type` query par
 * `gif`
 * `ico`
 * `webp`
+* `svg`
 
 ### Conversion data
 
