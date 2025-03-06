@@ -1,11 +1,11 @@
 [package]
 name = "pac-color"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 
 [dependencies]
 color_processing = "0.6.3"
-image = { version = "0.25.5", default-features = false, features = ["gif", "ico", "jpeg", "png", "webp"] }
+image = { version = "0.25.5", default-features = false, features = ["gif", "ico", "jpeg", "png", "webp", "tiff"] }
 rand = "0.9.0"
 rocket = { version = "0.5.1", features = ["json"] }
 svg = "0.18.0"
