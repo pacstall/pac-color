@@ -1,5 +1,7 @@
+use std::io::Cursor;
+
 use color_processing::Color;
-use image::ImageFormat;
+use image::{ImageFormat, Rgb, RgbImage};
 use rocket::{http::ContentType, response::status::BadRequest, FromForm};
 
 fn validate_size(size: &&str) -> bool {
@@ -52,4 +54,35 @@ pub fn hex_to_color(hex: &str) -> Result<Color, BadRequest<&'static str>> {
             color_processing::ParseErrorEnum::InvalidAbbreviation => "invalid abbreviation",
         })),
     }
+}
+
+pub fn generate_img(
+    color: &str,
+    size: (u32, u32),
+    r#type: &str,
+) -> Result<(ContentType, Vec<u8>), BadRequest<&'static str>> {
+    let (height, weight) = (size.0, size.1);
+
+    let Some(format) = ImageFormat::from_extension(r#type) else {
+        return Err(BadRequest("Invalid extension"));
+    };
+
+    let Some(content_type) = from_image_format(format) else {
+        return Err(BadRequest("Unsupported extension"));
+    };
+
+    let mut img = RgbImage::new(height, weight);
+
+    let color = hex_to_color(color)?;
+
+    let fill: Rgb<u8> = [color.red, color.green, color.blue].into();
+
+    img.pixels_mut().for_each(|pixel| *pixel = fill);
+
+    let mut buffer = Vec::new();
+
+    img.write_to(&mut Cursor::new(&mut buffer), format)
+        .map_err(|_| BadRequest("Could not make image"))?;
+
+    Ok((content_type, buffer))
 }

@@ -2,6 +2,8 @@
 
 Pac-color is a tiny web-app that dynamically generates solid-color images as well as getting JSON representation of color conversions to other formats.
 
+We at pacstall use this tool to generate swatches for release notes (<https://github.com/pacstall/pacstall/releases>).
+
 ## Using pac-color
 
 ### Swatch

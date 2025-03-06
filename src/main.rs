@@ -1,10 +1,9 @@
 use colors::Colors;
-use image::{ImageFormat, Rgb, RgbImage};
-use image_gen::{from_image_format, hex_to_color, ImageSpecifications};
+use image_gen::{generate_img, hex_to_color, ImageSpecifications};
+use rand::Rng;
 use rocket::{
     get, http::ContentType, launch, response::status::BadRequest, routes, serde::json::Json,
 };
-use std::io::Cursor;
 
 mod colors;
 mod image_gen;
@@ -17,28 +16,23 @@ fn colorize(
 ) -> Result<(ContentType, Vec<u8>), BadRequest<&'static str>> {
     let (height, weight) = spec.get_sizes();
 
-    let Some(format) = ImageFormat::from_extension(spec.r#type) else {
-        return Err(BadRequest("Invalid extension"));
-    };
+    generate_img(color, (height, weight), spec.r#type)
+}
 
-    let Some(content_type) = from_image_format(format) else {
-        return Err(BadRequest("Unsupported extension"));
-    };
+#[get("/random/preview?<spec..>")]
+#[allow(clippy::needless_pass_by_value)]
+fn random(spec: ImageSpecifications) -> Result<(ContentType, Vec<u8>), BadRequest<&'static str>> {
+    let (height, weight) = spec.get_sizes();
 
-    let mut img = RgbImage::new(height, weight);
+    let mut rng = rand::rng();
+    let string = format!(
+        "rgb({}, {}, {})",
+        rng.random_range(0..=255),
+        rng.random_range(0..=255),
+        rng.random_range(0..=255)
+    );
 
-    let color = hex_to_color(color)?;
-
-    let fill: Rgb<u8> = [color.red, color.green, color.blue].into();
-
-    img.pixels_mut().for_each(|pixel| *pixel = fill);
-
-    let mut buffer = Vec::new();
-
-    img.write_to(&mut Cursor::new(&mut buffer), format)
-        .map_err(|_| BadRequest("Could not make image"))?;
-
-    Ok((content_type, buffer))
+    generate_img(&string, (height, weight), spec.r#type)
 }
 
 #[get("/<color>")]
@@ -55,5 +49,5 @@ fn splash() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![colorize, jsonize, splash])
+    rocket::build().mount("/", routes![colorize, jsonize, random, splash])
 }
