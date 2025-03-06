@@ -43,7 +43,7 @@ pub fn from_image_format(
         Some(ImageFormat::WebP) => Some(ContentType::WEBP),
         Some(ImageFormat::Ico) => Some(ContentType::Icon),
         Some(ImageFormat::Tiff) => Some(ContentType::TIFF),
-        None | _ => match extention {
+        _ => match extention {
             Some("svg") => Some(ContentType::SVG),
             _ => None,
         },
