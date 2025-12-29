@@ -3,8 +3,8 @@ use std::io::Cursor;
 use color_processing::Color;
 use image::{ImageFormat, Rgb, RgbImage};
 use rayon::iter::ParallelIterator;
-use rocket::{http::ContentType, response::status::BadRequest, FromForm};
-use svg::{node::element::Rectangle, Document};
+use rocket::{FromForm, http::ContentType, response::status::BadRequest};
+use svg::{Document, node::element::Rectangle};
 
 fn validate_size(size: &&str) -> bool {
     match size.split_once('x') {
@@ -88,7 +88,7 @@ pub fn generate_img(
 
         img.par_pixels_mut().for_each(|pixel| *pixel = fill);
 
-        let mut buffer = Vec::new();
+        let mut buffer = Vec::with_capacity((height * width * 3) as usize);
 
         img.write_to(
             &mut Cursor::new(&mut buffer),
