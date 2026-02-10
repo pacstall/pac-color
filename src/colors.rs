@@ -1,5 +1,5 @@
 use color_processing::Color;
-use rocket::serde::{json::Json, Serialize};
+use rocket::serde::{Serialize, json::Json};
 
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -77,7 +77,7 @@ impl From<Rgb> for OKLab {
     fn from(value: Rgb) -> Self {
         fn srgb_to_linear(c: u8) -> f32 {
             let c = c as f32 / 255.0;
-            if c <= 0.04045 {
+            if c <= 0.040_45 {
                 c / 12.92
             } else {
                 ((c + 0.055) / 1.055).powf(2.4)
@@ -88,17 +88,17 @@ impl From<Rgb> for OKLab {
         let g = srgb_to_linear(value.g);
         let b = srgb_to_linear(value.b);
 
-        let l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
-        let m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
-        let s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+        let l = 0.412_221_470_8 * r + 0.536_332_536_3 * g + 0.051_445_992_9 * b;
+        let m = 0.211_903_498_2 * r + 0.680_699_545_1 * g + 0.107_396_956_6 * b;
+        let s = 0.088_302_461_9 * r + 0.281_718_837_6 * g + 0.629_978_700_5 * b;
 
         let l_ = l.cbrt();
         let m_ = m.cbrt();
         let s_ = s.cbrt();
 
-        let l_ok = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
-        let a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
-        let b = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+        let l_ok = 0.210_454_255_3 * l_ + 0.793_617_785_0 * m_ - 0.004_072_046_8 * s_;
+        let a = 1.977_998_495_1 * l_ - 2.428_592_205_0 * m_ + 0.450_593_709_9 * s_;
+        let b = 0.025_904_037_1 * l_ + 0.782_771_766_2 * m_ - 0.808_675_766_0 * s_;
 
         Self { l: l_ok, a, b }
     }
